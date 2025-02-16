@@ -6,14 +6,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.mytercera.ui.theme.MyTerceraTheme
 
 class MainActivity : ComponentActivity() {
@@ -41,7 +40,7 @@ fun PedidoScreen(modifier: Modifier = Modifier) {
     var cantidad by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var mensajeConfirmacion by remember { mutableStateOf("") }
-    var mostrarAlerta by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) } // Controla el estado del AlertDialog
 
     Column(
         modifier = modifier
@@ -51,7 +50,6 @@ fun PedidoScreen(modifier: Modifier = Modifier) {
     ) {
         Text(text = "Registro de Pedido", style = MaterialTheme.typography.headlineMedium)
 
-        // Campo para el nombre del producto
         OutlinedTextField(
             value = nombreProducto,
             onValueChange = { nombreProducto = it },
@@ -59,7 +57,6 @@ fun PedidoScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Campo para la cantidad (solo números)
         OutlinedTextField(
             value = cantidad,
             onValueChange = { cantidad = it },
@@ -68,7 +65,6 @@ fun PedidoScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Campo para la dirección de despacho
         OutlinedTextField(
             value = direccion,
             onValueChange = { direccion = it },
@@ -76,55 +72,49 @@ fun PedidoScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Botón para registrar el pedido
-        Button(
-            onClick = {
-                if (nombreProducto.isNotEmpty() && cantidad.isNotEmpty() && direccion.isNotEmpty()) {
-                    mensajeConfirmacion = "Pedido registrado: $nombreProducto ($cantidad) - Enviado a: $direccion"
-                    Log.d("Pedido", mensajeConfirmacion)
-                } else {
-                    mensajeConfirmacion = "Por favor, completa todos los campos."
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Registrar Pedido")
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = {
+                    if (nombreProducto.isNotEmpty() && cantidad.isNotEmpty() && direccion.isNotEmpty()) {
+                        mensajeConfirmacion = "Pedido registrado: $nombreProducto ($cantidad) - Enviado a: $direccion"
+                        Log.d("Pedido", mensajeConfirmacion)
+                    } else {
+                        mensajeConfirmacion = "Por favor, completa todos los campos."
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(text = "Registrar Pedido")
+            }
+
+            Button(
+                onClick = {
+                    if (mensajeConfirmacion.isNotEmpty()) {
+                        Log.d("Pedido", "Mostrando alerta: $mensajeConfirmacion") // Registrar en la consola
+                        showDialog = true // Mostrar la alerta
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(text = "Mostrar Pedido")
+            }
         }
 
-        // Botón para mostrar el pedido en alerta y consola
-        Button(
-            onClick = {
-                if (nombreProducto.isNotEmpty() && cantidad.isNotEmpty() && direccion.isNotEmpty()) {
-                    Log.d("Pedido", "Pedido: $nombreProducto ($cantidad) - Enviado a: $direccion")
-                    mostrarAlerta = true
-                } else {
-                    mensajeConfirmacion = "No hay información suficiente para mostrar."
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Mostrar Pedido")
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                confirmButton = {
+                    Button(onClick = { showDialog = false }) {
+                        Text("Aceptar")
+                    }
+                },
+                title = { Text("Detalles del Pedido") },
+                text = { Text(mensajeConfirmacion) }
+            )
         }
 
-        // Mensaje de confirmación
         if (mensajeConfirmacion.isNotEmpty()) {
             Text(text = mensajeConfirmacion, style = MaterialTheme.typography.bodyLarge)
-        }
-
-        // AlertDialog para mostrar la información del pedido
-        if (mostrarAlerta) {
-            AlertDialog(
-                onDismissRequest = { mostrarAlerta = false },
-                title = { Text("Información del Pedido") },
-                text = {
-                    Text("Producto: $nombreProducto\nCantidad: $cantidad\nDirección: $direccion")
-                },
-                confirmButton = {
-                    Button(onClick = { mostrarAlerta = false }) {
-                        Text("Cerrar")
-                    }
-                }
-            )
         }
     }
 }
