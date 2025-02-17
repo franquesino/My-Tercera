@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -42,61 +43,76 @@ fun PedidoScreen(modifier: Modifier = Modifier) {
     var mensajeConfirmacion by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) } // Controla el estado del AlertDialog
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        contentAlignment = Alignment.Center
     ) {
-        Text(text = "Registro de Pedido", style = MaterialTheme.typography.headlineMedium)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Registro de Pedido", style = MaterialTheme.typography.headlineMedium)
 
-        OutlinedTextField(
-            value = nombreProducto,
-            onValueChange = { nombreProducto = it },
-            label = { Text("Nombre del Producto") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            OutlinedTextField(
+                value = nombreProducto,
+                onValueChange = { nombreProducto = it },
+                label = { Text("Nombre del Producto") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        OutlinedTextField(
-            value = cantidad,
-            onValueChange = { cantidad = it },
-            label = { Text("Cantidad") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
+            OutlinedTextField(
+                value = cantidad,
+                onValueChange = { cantidad = it },
+                label = { Text("Cantidad") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        OutlinedTextField(
-            value = direccion,
-            onValueChange = { direccion = it },
-            label = { Text("Dirección de Despacho") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            OutlinedTextField(
+                value = direccion,
+                onValueChange = { direccion = it },
+                label = { Text("Dirección de Despacho") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(
-                onClick = {
-                    if (nombreProducto.isNotEmpty() && cantidad.isNotEmpty() && direccion.isNotEmpty()) {
-                        mensajeConfirmacion = "Pedido registrado: $nombreProducto ($cantidad) - Enviado a: $direccion"
-                        Log.d("Pedido", mensajeConfirmacion)
-                    } else {
-                        mensajeConfirmacion = "Por favor, completa todos los campos."
-                    }
-                },
-                modifier = Modifier.weight(1f)
+            Spacer(modifier = Modifier.height(16.dp)) // Espaciado entre los inputs y los botones
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(text = "Registrar Pedido")
+                Button(
+                    onClick = {
+                        if (nombreProducto.isNotEmpty() && cantidad.isNotEmpty() && direccion.isNotEmpty()) {
+                            mensajeConfirmacion = "Pedido registrado: $nombreProducto ($cantidad) - Enviado a: $direccion"
+                            Log.d("Pedido", mensajeConfirmacion)
+                        } else {
+                            mensajeConfirmacion = "Por favor, completa todos los campos."
+                        }
+                    }
+                ) {
+                    Text(text = "Registrar Pedido")
+                }
+
+                Button(
+                    onClick = {
+                        if (mensajeConfirmacion.isNotEmpty()) {
+                            Log.d("Pedido", "Mostrando alerta: $mensajeConfirmacion") // Registrar en consola
+                            showDialog = true // Mostrar la alerta
+                        }
+                    }
+                ) {
+                    Text(text = "Mostrar Pedido")
+                }
             }
 
-            Button(
-                onClick = {
-                    if (mensajeConfirmacion.isNotEmpty()) {
-                        Log.d("Pedido", "Mostrando alerta: $mensajeConfirmacion") // Registrar en la consola
-                        showDialog = true // Mostrar la alerta
-                    }
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Mostrar Pedido")
+            if (mensajeConfirmacion.isNotEmpty()) {
+                Text(text = mensajeConfirmacion, style = MaterialTheme.typography.bodyLarge)
             }
         }
 
@@ -111,10 +127,6 @@ fun PedidoScreen(modifier: Modifier = Modifier) {
                 title = { Text("Detalles del Pedido") },
                 text = { Text(mensajeConfirmacion) }
             )
-        }
-
-        if (mensajeConfirmacion.isNotEmpty()) {
-            Text(text = mensajeConfirmacion, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
